@@ -9,10 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 
-# ==========================================
 # 1. DATA LOADING CLEANING
-# ==========================================
-print("--- Loading and Cleaning Data ---")
 df = pd.read_csv("telco_customer.csv", sep=';')
 
 # missing values
@@ -40,18 +37,14 @@ sns.kdeplot(data=df, x="MonthlyCharges", hue="Churn", fill=True)
 plt.title("Impact of Monthly Charges on Customer Churn")
 plt.show()
 
-print("--- EDA Completed. Transitioning to Modeling Phase ---")
 
-# ==========================================
-# 3. FEATURE ENGINEERING
-# ==========================================
+# 3. FEATURE eng.
 # Adding custom features to improve model intelligence
 df.drop("customerID", axis=1, inplace=True)
 df["AvgMonthlySpend"] = df["TotalCharges"] / (df["tenure"] + 1)
 df["IsLongTerm"] = np.where(df["tenure"] > 24, 1, 0)
 
-services = ["PhoneService", "MultipleLines", "InternetService", "OnlineSecurity", 
-            "OnlineBackup", "DeviceProtection", "TechSupport", "StreamingTV", "StreamingMovies"]
+services = ["PhoneService", "MultipleLines", "InternetService", "OnlineSecurity", "OnlineBackup", "DeviceProtection", "TechSupport", "StreamingTV", "StreamingMovies"]
 df["TotalServices"] = df[services].apply(lambda x: sum(x != "No"), axis=1)
 
 df["HasAutoPayment"] = np.where(df["PaymentMethod"].str.contains("automatic"), 1, 0)
@@ -60,9 +53,8 @@ df["ContractType"] = df["Contract"].map({"Month-to-month": 0, "One year": 1, "Tw
 # Encoding the target variable
 df["Churn"] = df["Churn"].map({"Yes": 1, "No": 0})
 
-# ==========================================
-# 4. MACHINE LEARNING Pipeline
-# ==========================================
+# 4. Machine learning Pipeline
+
 y = df["Churn"]
 X = df.drop("Churn", axis=1)
 
@@ -85,10 +77,7 @@ pipeline = Pipeline([
     ('classifier', RandomForestClassifier(random_state=42, class_weight='balanced'))
 ])
 
-# ==========================================
 # 5. MODEL TRAINING & OPTIMIZATION
-# ==========================================
-print("Training Model with GridSearchCV... Please wait.")
 param_grid = {
     'classifier__max_depth': [5, 10],
     'classifier__n_estimators': [100, 200]
@@ -126,5 +115,6 @@ plt.title("Top 10 Most Important Factors for Churn Prediction")
 plt.gca().invert_yaxis()
 plt.tight_layout()
 plt.show()
+
 
 print("\n Analysis and Modeling Completed Successfully!")
